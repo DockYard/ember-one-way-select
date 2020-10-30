@@ -8,8 +8,6 @@ import { w } from '@ember/string';
 import layout from '../templates/components/one-way-select';
 import DynamicAttributeBindings from '../-private/dynamic-attribute-bindings';
 
-import { invokeAction } from 'ember-invoke-action';
-
 const OneWaySelectComponent = Component.extend(DynamicAttributeBindings, {
   layout,
   tagName: 'select',
@@ -109,7 +107,7 @@ const OneWaySelectComponent = Component.extend(DynamicAttributeBindings, {
       value = this._selectedSingle();
     }
 
-    invokeAction(this, 'update', value);
+    this.get('update')(value);
   },
 
   prompt: alias('includeBlank'),

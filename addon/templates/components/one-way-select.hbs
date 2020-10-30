@@ -1,55 +1,55 @@
-{{#if includeBlank}}
+{{#if this.includeBlank}}
   <option value=""
-          disabled={{promptIsDisabled}}
-          selected={{if nothingSelected "selected"}}>
-    {{prompt}}
+          disabled={{this.promptIsDisabled}}
+          selected={{if this.nothingSelected "selected"}}>
+    {{this.prompt}}
   </option>
 {{/if}}
-{{#if hasGrouping}}
-  {{#each optionGroups as |optionGroup groupIndex|}}
+{{#if this.hasGrouping}}
+  {{#each this.optionGroups as |optionGroup groupIndex|}}
     <optgroup label={{optionGroup.groupName}}>
       {{#each optionGroup.options as |option index|}}
         {{#if hasBlock}}
-          {{#one-way-select/option
-              selected=selectedValue
-              option=option
-              optionValuePath=computedOptionValuePath
-              optionTargetPath=optionTargetPath}}
+          <OneWaySelect::option
+            @selected={{this.selectedValue}}
+            @option={{option}}
+            @optionValuePath={{this.computedOptionValuePath}}
+            @optionTargetPath={{@optionTargetPath}}>
             {{yield option index groupIndex}}
-          {{/one-way-select/option}}
+          </OneWaySelect::option>
         {{else}}
-          {{one-way-select/option
-              selected=selectedValue
-              option=option
-              index=index
-              groupIndex=groupIndex
-              optionComponent=optionComponent
-              optionValuePath=computedOptionValuePath
-              optionTargetPath=optionTargetPath
-              optionLabelPath=optionLabelPath}}
+          <OneWaySelect::option
+            @selected={{this.selectedValue}}
+            @option={{option}}
+            @index={{index}}
+            @groupIndex={{groupIndex}}
+            @optionComponent={{@optionComponent}}
+            @optionValuePath={{this.computedOptionValuePath}}
+            @optionTargetPath={{@optionTargetPath}}
+            @optionLabelPath={{@optionLabelPath}} />
         {{/if}}
       {{/each}}
     </optgroup>
   {{/each}}
 {{else}}
-  {{#each options as |option index|}}
+  {{#each this.options as |option index|}}
     {{#if hasBlock}}
-      {{#one-way-select/option
-          selected=selectedValue
-          option=option
-          optionValuePath=computedOptionValuePath
-          optionTargetPath=optionTargetPath}}
+      <OneWaySelect::Option
+          @selected={{this.selectedValue}}
+          @option={{@option}}
+          @optionValuePath={{this.computedOptionValuePath}}
+          @optionTargetPath={{@optionTargetPath}}>
         {{yield option index}}
-      {{/one-way-select/option}}
+      </OneWaySelect::Option>
     {{else}}
-      {{one-way-select/option
-          selected=selectedValue
-          option=option
-          index=index
-          optionComponent=optionComponent
-          optionValuePath=computedOptionValuePath
-          optionTargetPath=optionTargetPath
-          optionLabelPath=optionLabelPath}}
+      <OneWaySelect::Option
+          @selected={{this.selectedValue}}
+          @option={{option}}
+          @index={{index}}
+          @optionComponent={{@optionComponent}}
+          @optionValuePath={{this.computedOptionValuePath}}
+          @optionTargetPath={{@optionTargetPath}}
+          @optionLabelPath={{@optionLabelPath}} />
     {{/if}}
   {{/each}}
 {{/if}}

@@ -3,8 +3,7 @@ import { htmlSafe } from '@ember/string';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
-import { findAll, find } from 'ember-native-dom-helpers';
-import { fillIn, render, triggerEvent } from '@ember/test-helpers';
+import { find, findAll, fillIn, render, triggerEvent } from '@ember/test-helpers';
 
 module('Integration | Component | one-way-select', function(hooks) {
   setupRenderingTest(hooks);
@@ -19,18 +18,17 @@ module('Integration | Component | one-way-select', function(hooks) {
       {{one-way-select value=value options=options}}
     `);
 
-    assert.equal(findAll('option').length, 3, 'Select has three options');
+    assert.dom('option').exists({ count: 3}, 'Select has three options');
   });
 
   test('A value is selected', async function(assert) {
     await render(hbs` {{one-way-select value=value options=options}} `);
-
-    assert.equal([...findAll('option')].find((o) => o.selected).value, 'female', 'Female is selected');
+    assert.dom('option:checked').hasValue('female', 'Female is selected');
   });
 
   test('Value can be the first positional param', async function(assert) {
     await render(hbs`{{one-way-select value options=options}}`);
-    assert.equal([...findAll('option')].find((o) => o.selected).value, 'female', 'Female is selected');
+    assert.dom('option:checked').hasValue('female', 'Female is selected');
   });
 
   test('Selecting a value updates the selected value', async function(assert) {
@@ -39,7 +37,7 @@ module('Integration | Component | one-way-select', function(hooks) {
     find('select').value = 'male';
     await triggerEvent('select', 'change');
 
-    assert.equal([...findAll('option')].find((o) => o.selected).value, 'male', 'Male is selected');
+    assert.dom('option:checked').hasValue('male', 'Male is selected');
     assert.equal(this.get('value'), 'male', 'Value is \'male\'');
   });
 
@@ -62,35 +60,40 @@ module('Integration | Component | one-way-select', function(hooks) {
     await fillIn('select', 'value2');
     await triggerEvent('select', 'change');
 
-    assert.equal([...findAll('option')].find((o) => o.selected).value, 'value2', 'value2 is selected');
+    assert.dom('option:checked').hasValue('value2', 'value2 is selected');
     assert.equal(this.get('value'), 'value2', 'Value is \'value2\'');
   });
 
   test('Accepts a space seperated string for options', async function(assert) {
     await render(hbs`{{one-way-select value=value options="male female"}}`);
-    assert.equal(findAll('option').length, 2, 'There are two options: male, female');
+
+    assert.dom('option').exists({ count: 2 }, 'There are two options: male, female');
   });
 
   test('Can include a blank value', async function(assert) {
     await render(hbs`{{one-way-select value=value options=options includeBlank=true}}`);
-    assert.equal(findAll('option').length, 4, 'There are four options');
+
+    assert.dom('option').exists({ count: 4 }, 'There are four options');
   });
 
   test('Blank value can be given a text', async function(assert) {
     await render(hbs`{{one-way-select value=value options=options includeBlank="Select one"}}`);
-    assert.equal(findAll('option')[0].textContent.trim(), 'Select one', 'The blank option has "Select one" as label');
-    assert.ok(findAll('option')[0].disabled, 'The blank option is disabled by default');
+
+    assert.dom('option').containsText('Select one', 'The blank option has "Select one" as label');
+    assert.dom('option').isDisabled('The blank option is disabled by default');
   });
 
   test('Prompt is an alias for includeBlank', async function(assert) {
     await render(hbs`{{one-way-select value=value options=options prompt="Select one"}}`);
-    assert.equal(findAll('option')[0].textContent.trim(), 'Select one', 'The blank option has "Select one" as label');
+
+    assert.dom('option').containsText('Select one', 'The blank option has "Select one" as label');
   });
 
   test('Prompt can be given as SafeString', async function(assert) {
     this.set('promptSafeString', htmlSafe('Select one'));
     await render(hbs`{{one-way-select value=value options=options prompt=promptSafeString}}`);
-    assert.equal(findAll('option')[0].textContent.trim(), 'Select one', 'The blank option has "Select one" as label');
+
+    assert.dom('option').containsText('Select one', 'The blank option has "Select one" as label');
   });
 
   test('With prompt selection still works properly', async function(assert) {
@@ -103,18 +106,21 @@ module('Integration | Component | one-way-select', function(hooks) {
     }}`);
     find('select').value = 'male';
     await triggerEvent('select', 'change');
-    assert.equal([...findAll('option')].find((o) => o.selected).value, 'male', 'Select options is male');
+
+    assert.dom('option:checked').hasValue('male', 'Select options is male');
     assert.equal(this.get('value'), 'male', 'Value us \'male\'');
   });
 
   test('Prompt is selected by default', async function(assert) {
     await render(hbs`{{one-way-select options=options prompt="Select one"}}`);
-    assert.ok(findAll('option')[0].selected, 'Prompt option is selected');
+
+    assert.dom('option:checked').containsText('Select one', 'Prompt option is selected');
   });
 
   test('Prompt can be selectable', async function(assert) {
     await render(hbs`{{one-way-select value=value options=options prompt="Select one" promptIsSelectable=true}}`);
-    assert.notOk(findAll('option')[0].disabled, 'The blank option is enabled');
+
+    assert.dom('option').isNotDisabled('The blank option is enabled');
   });
 
   test('optionValuePath', async function(assert) {
@@ -125,8 +131,10 @@ module('Integration | Component | one-way-select', function(hooks) {
     await render(hbs`{{one-way-select
       value=value options=options optionValuePath="id"}}`);
 
-    assert.equal([...findAll('option')].map((o) => o.textContent).join('').replace(/\s/g, ''), '12', 'Options are labeled 1, 2');
-    assert.equal([...findAll('option')].find((o) => o.selected).value, 2, 'Selected option is 2');
+    let options = this.element.querySelectorAll('option');
+    assert.dom(options[0]).hasText('1');
+    assert.dom(options[1]).hasText('2');
+    assert.dom('option:checked').hasValue('2');
   });
 
   test('optionLabelPath', async function(assert) {
@@ -137,7 +145,9 @@ module('Integration | Component | one-way-select', function(hooks) {
     await render(hbs`{{one-way-select
       value=value options=options optionValuePath="id" optionLabelPath="value"}}`);
 
-    assert.equal([...findAll('option')].map((o) => o.textContent).join('').replace(/\s/g, ''), 'malefemale', 'Options are label male, female');
+    let options = this.element.querySelectorAll('option');
+    assert.dom(options[0]).hasText('male');
+    assert.dom(options[1]).hasText('female');
   });
 
   test('selected based on optionValuePath', async function(assert) {
@@ -146,7 +156,8 @@ module('Integration | Component | one-way-select', function(hooks) {
 
     await render(hbs`{{one-way-select
       value=value options=options optionValuePath="id" optionLabelPath="value"}}`);
-    assert.equal([...findAll('option')].find((o) => o.selected).value, '2', 'Female is selected');
+
+    assert.dom('option:checked').hasValue('2', 'Female is selected');
   });
 
   test('selecting with optionValuePath', async function(assert) {
@@ -171,13 +182,15 @@ module('Integration | Component | one-way-select', function(hooks) {
     await render(hbs`{{one-way-select
       value=value options=options optionTargetPath="id" update=(action (mut value))}}`);
 
-    assert.equal([...findAll('option')].map((o) => o.textContent).join('').replace(/\s/g, ''), '12', 'Options are labeled 1, 2');
-    assert.equal([...findAll('option')].find((o) => o.selected).value, 2, 'Selected option is 2');
+    let options = this.element.querySelectorAll('option');
+    assert.dom(options[0]).hasText('1');
+    assert.dom(options[1]).hasText('2');
+    assert.dom('option:checked').hasValue('2', 'Selected option is 2');
 
     await fillIn('select', '1');
     await triggerEvent('select', 'change');
 
-    assert.equal([...findAll('option')].find((o) => o.selected).value, 1, 'Selected option is 1');
+    assert.dom('option:checked').hasValue('1', 'Selected option is 1');
     assert.equal(this.get('value'), male.id);
   });
 
@@ -201,8 +214,8 @@ module('Integration | Component | one-way-select', function(hooks) {
     await render(hbs`{{one-way-select value=value options=options
         optionValuePath="id" optionLabelPath="label" groupLabelPath="type"}}`);
 
-    assert.equal(findAll('optgroup')[0].getAttribute('label'),  'Trappist', 'First optgroup label is Trappist');
-    assert.equal(findAll('optgroup').length, 3, 'There should be three optgroups');
+    assert.dom('optgroup').hasAttribute('label', 'Trappist', 'First optgroup label is Trappist');
+    assert.dom('optgroup').exists({ count: 3 }, 'There should be three optgroups');
   });
 
   test('options is pre-grouped', async function(assert) {
@@ -227,8 +240,8 @@ module('Integration | Component | one-way-select', function(hooks) {
     await render(hbs`{{one-way-select value=value options=options
         optionValuePath="id" optionLabelPath="label"}}`);
 
-    assert.equal(findAll('optgroup')[0].getAttribute('label'),  'Trappist', 'First optgroup label is Trappist');
-    assert.equal(findAll('optgroup').length, 3, 'There should be three optgroups');
+    assert.dom('optgroup').hasAttribute('label', 'Trappist', 'First optgroup label is Trappist');
+    assert.dom('optgroup').exists({ count: 3 }, 'There should be three optgroups');
   });
 
   test('multiple select', async function(assert) {
@@ -270,7 +283,7 @@ module('Integration | Component | one-way-select', function(hooks) {
     findAll('option')[3].selected = true;
     await triggerEvent('select', 'change');
 
-    assert.equal([...findAll('option')].filter((o) => o.selected)[0].value, 1, 'Dubbel is selected');
+    assert.dom('option:checked').hasValue('1', 'Dubbel is selected');
     assert.deepEqual(this.get('value'), [dubbel, ipa, saison], 'Dubbel, IPA and Saison are selected');
   });
 
@@ -307,6 +320,7 @@ module('Integration | Component | one-way-select', function(hooks) {
     let fired = false;
     this.set('update', () => fired = true);
     await render(hbs`{{one-way-select value=value options=options update=update}}`);
+
     find('select').value = 'male';
     await triggerEvent('select', 'change');
     assert.equal(fired, true, 'The update action should have fired');
@@ -314,13 +328,18 @@ module('Integration | Component | one-way-select', function(hooks) {
 
   test('I can add a class attribute', async function(assert) {
     await render(hbs`{{one-way-select class="testing"}}`);
-    assert.equal(true, find('select').classList.contains('testing'));
+
+    assert.dom('select').hasClass('testing');
   });
 
   test('Handles block expression', async function(assert) {
     await render(hbs`{{#one-way-select options=options as |option index|}}{{option}}-{{index}}{{/one-way-select}}`);
-    assert.equal(findAll('option').length, 3, 'Select has three options');
-    assert.equal([...findAll('option')].map((o) => o.textContent).join('').replace(/\s/g, ''), 'unknown-0male-1female-2', 'Has labels with indexes');
+
+    assert.dom('option').exists({ count: 3 }, 'Select has three options');
+    let options = findAll('option');
+    assert.dom(options[0]).hasText('unknown-0');
+    assert.dom(options[1]).hasText('male-1');
+    assert.dom(options[2]).hasText('female-2');
   });
 
   test('Handles block expression (option groups)', async function(assert) {
@@ -337,8 +356,12 @@ module('Integration | Component | one-way-select', function(hooks) {
     this.set('options', groups);
 
     await render(hbs`{{#one-way-select options=options as |option index groupIndex|}}{{option}}-{{groupIndex}}-{{index}}{{/one-way-select}}`);
-    assert.equal(findAll('option').length, 3, 'Select has three options');
-    assert.equal([...findAll('option')].map((o) => o.textContent).join('').replace(/\s/g, ''), 'value1-0-0value2-1-0value3-1-1', 'Has labels with indexes');
+
+    assert.dom('option').exists({ count: 3 }, 'Select has three options');
+    let options = findAll('option');
+    assert.dom(options[0]).hasText('value1-0-0');
+    assert.dom(options[1]).hasText('value2-1-0');
+    assert.dom(options[2]).hasText('value3-1-1');
   });
 
   test('I can pass a component that is rendered as option', async function(assert) {
@@ -347,8 +370,12 @@ module('Integration | Component | one-way-select', function(hooks) {
     }));
 
     await render(hbs`{{one-way-select options=options optionComponent="option-component"}}`);
-    assert.equal(findAll('option').length, 3, 'Select has three options');
-    assert.equal([...findAll('option')].map((o) => o.textContent).join('').replace(/\s/g, ''), 'unknown-0male-1female-2', 'Has labels with indexes');
+
+    assert.dom('option').exists({ count: 3 }, 'Select has three options');
+    let options = findAll('option');
+    assert.dom(options[0]).hasText('unknown-0');
+    assert.dom(options[1]).hasText('male-1');
+    assert.dom(options[2]).hasText('female-2');
   });
 
   test('I can pass a component that is rendered as option (option groups)', async function(assert) {
@@ -369,19 +396,25 @@ module('Integration | Component | one-way-select', function(hooks) {
     this.set('options', groups);
 
     await render(hbs`{{one-way-select options=options optionComponent="option-component"}}`);
-    assert.equal(findAll('option').length, 3, 'Select has three options');
-    assert.equal([...findAll('option')].map((o) => o.textContent).join('').replace(/\s/g, ''), 'value1-0-0value2-1-0value3-1-1', 'Has labels with indexes');
+
+    assert.dom('option').exists({ count: 3 }, 'Select has three options');
+    let options = findAll('option');
+    assert.dom(options[0]).hasText('value1-0-0');
+    assert.dom(options[1]).hasText('value2-1-0');
+    assert.dom(options[2]).hasText('value3-1-1');
   });
 
   test('Setting the selection to null/undefined from outside', async function(assert) {
     await render(hbs` {{one-way-select value options=options}} `);
     this.set('value', undefined);
-    assert.equal([...findAll('option')].find((o) => o.selected).value, 'unknown', 'The first value is selected');
+
+    assert.dom('option:checked').hasValue('unknown', 'The first value is selected');
   });
 
   test('classNames is not passed as an html attribute', async function(assert) {
     await render(hbs`{{one-way-select classNames="testing"}}`);
-    assert.equal(find('select').getAttribute('classnames'), undefined);
+
+    assert.dom('select').doesNotHaveAttribute('classnames');
   });
 
   test('allows to select blank without throwing', async function(assert) {
@@ -403,7 +436,7 @@ module('Integration | Component | one-way-select', function(hooks) {
     find('select').value = '';
     await triggerEvent('select', 'change');
 
-    assert.equal([...findAll('option')].find((o) => o.selected).textContent.trim(), 'myDefaultPrompt');
+    assert.dom('option:checked').hasText('myDefaultPrompt');
     assert.deepEqual(updates, ['one', undefined]);
   });
 });

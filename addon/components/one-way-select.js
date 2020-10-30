@@ -6,11 +6,8 @@ import { isBlank, isNone, isPresent } from '@ember/utils';
 import { w } from '@ember/string';
 
 import layout from '../templates/components/one-way-select';
-import DynamicAttributeBindings from '../-private/dynamic-attribute-bindings';
 
-import { invokeAction } from 'ember-invoke-action';
-
-const OneWaySelectComponent = Component.extend(DynamicAttributeBindings, {
+const OneWaySelectComponent = Component.extend({
   layout,
   tagName: 'select',
 
@@ -26,7 +23,9 @@ const OneWaySelectComponent = Component.extend(DynamicAttributeBindings, {
     'optionValuePath',
     'optionLabelPath',
     'optionComponent',
-    'groupLabelPath'
+    'groupLabelPath',
+    'class',
+    'classNames'
   ],
 
   attributeBindings: [
@@ -35,6 +34,16 @@ const OneWaySelectComponent = Component.extend(DynamicAttributeBindings, {
 
   didReceiveAttrs() {
     this._super(...arguments);
+
+    let newAttributeBindings = [];
+    // eslint-disable-next-line ember/no-attrs-in-components
+    for (let key in this.attrs) {
+      if (this.NON_ATTRIBUTE_BOUND_PROPS.indexOf(key) === -1 && this.attributeBindings.indexOf(key) === -1) {
+        newAttributeBindings.push(key);
+      }
+    }
+
+    set(this, 'attributeBindings', this.attributeBindings.concat(newAttributeBindings));
 
     let value = get(this, 'paramValue');
     if (value === undefined) {
@@ -109,7 +118,7 @@ const OneWaySelectComponent = Component.extend(DynamicAttributeBindings, {
       value = this._selectedSingle();
     }
 
-    invokeAction(this, 'update', value);
+    this.update(value);
   },
 
   prompt: alias('includeBlank'),

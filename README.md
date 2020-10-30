@@ -272,6 +272,13 @@ to the following structure:
 
 * `ember build`
 
+## Compatibility
+
+* Ember.js v3.16 or above
+* Ember CLI v2.13 or above
+* Node.js v10 or above
+
+
 For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
 
 ## Legal

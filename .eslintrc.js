@@ -1,12 +1,8 @@
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
   parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    ecmaFeatures: {
-      legacyDecorators: true
-    }
+    ecmaVersion: 2017,
+    sourceType: 'module'
   },
   plugins: [
     'ember'
@@ -24,30 +20,37 @@ module.exports = {
     // node files
     {
       files: [
-        '.eslintrc.js',
-        '.template-lintrc.js',
-        'ember-cli-build.js',
         'index.js',
         'testem.js',
-        'blueprints/*/index.js',
+        'ember-cli-build.js',
         'config/**/*.js',
         'tests/dummy/config/**/*.js'
       ],
       excludedFiles: [
         'app/**',
-        'addon/**',
-        'addon-test-support/**',
-        'tests/dummy/app/**'
+        'addon/**'
       ],
       parserOptions: {
         sourceType: 'script',
+        ecmaVersion: 2015
       },
       env: {
         browser: false,
         node: true
       },
       plugins: ['node'],
-      extends: ['plugin:node/recommended']
+      rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
+        // add your custom rules and overrides for node files here
+      })
+    },
+
+    // test files
+    {
+      files: ['tests/**/*.js'],
+      excludedFiles: ['tests/dummy/**/*.js'],
+      env: {
+        embertest: true
+      }
     }
   ]
 };

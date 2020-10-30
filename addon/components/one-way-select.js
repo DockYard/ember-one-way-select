@@ -107,7 +107,7 @@ const OneWaySelectComponent = Component.extend(DynamicAttributeBindings, {
       value = this._selectedSingle();
     }
 
-    this.get('update')(value);
+    this.update(value);
   },
 
   prompt: alias('includeBlank'),

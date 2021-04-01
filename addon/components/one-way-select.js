@@ -1,7 +1,7 @@
 import Component from '@ember/component';
 import { A as emberArray, isArray } from '@ember/array';
 import EmberObject, { computed, get, set } from '@ember/object';
-import { alias, empty, not, or } from '@ember/object/computed'
+import { alias, not, or } from '@ember/object/computed'
 import { isBlank, isNone, isPresent } from '@ember/utils';
 import { w } from '@ember/string';
 
@@ -71,7 +71,9 @@ const OneWaySelectComponent = Component.extend({
     set(this, 'options', emberArray(options));
   },
 
-  nothingSelected: empty('selectedValue'),
+  nothingSelected: computed('selectedValue', function() {
+    return !this._findOption(this.get('selectedValue'));
+  }),
   promptIsDisabled: not('promptIsSelectable'),
   hasGrouping: or('optionsArePreGrouped', 'groupLabelPath'),
   computedOptionValuePath: or('optionValuePath', 'optionTargetPath'),

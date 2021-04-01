@@ -440,3 +440,9 @@ module('Integration | Component | one-way-select', function(hooks) {
     assert.deepEqual(updates, ['one', undefined]);
   });
 });
+
+test('Prompt is selected if value is not an option', function(assert) {
+  this.set('value', 'doesntexist');
+  this.render(hbs`{{one-way-select value=value options=options prompt="Select one"}}`);
+  assert.equal([...findAll('option')].find((o) => o.selected).textContent.trim(), 'Select one', 'Prompt is selected');
+});

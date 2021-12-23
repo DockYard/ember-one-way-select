@@ -9,7 +9,7 @@
   {{#each this.optionGroups as |optionGroup groupIndex|}}
     <optgroup label={{optionGroup.groupName}}>
       {{#each optionGroup.options as |option index|}}
-        {{#if hasBlock}}
+        {{#if (has-block)}}
           <OneWaySelect::option
             @selected={{this.selectedValue}}
             @option={{option}}
@@ -33,7 +33,7 @@
   {{/each}}
 {{else}}
   {{#each this.options as |option index|}}
-    {{#if hasBlock}}
+    {{#if (has-block)}}
       <OneWaySelect::Option
           @selected={{this.selectedValue}}
           @option={{@option}}

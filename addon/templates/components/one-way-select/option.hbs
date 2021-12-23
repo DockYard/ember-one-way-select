@@ -1,6 +1,6 @@
 <option value={{if @optionValuePath (get @option @optionValuePath) @option}}
         selected={{one-way-select/contains @selected @option @optionValuePath @optionTargetPath}}>
-  {{#if hasBlock}}
+  {{#if (has-block)}}
     {{yield}}
   {{else if @optionComponent}}
     {{component @optionComponent
